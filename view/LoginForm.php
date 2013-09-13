@@ -4,20 +4,27 @@ namespace view;
 
 class LoginForm {
 
-	public function getForm() {
+	public function getForm($message = '') {
 		return
 		"
-		<form action='?' method='post'>
+		<div>
+			<p>$message</p>
+		</div>
+		<form action='?login' method='post'>
 			<p>
 				<label for='username'>Username</label>
 				<input type='text' name='username' id='username'>
 			</p>
 			<p>
 				<label for='password'>Password</label>
-				<input type='password' name='username' id='username'>
+				<input type='password' name='password' id='password'>
 			</p>
 			<p>
-				<input type='submit' value='Logga in'>
+				<label for='stay'>Håll mig inloggad</label>
+				<input type='checkbox' name='stay' id='stay'>
+			</p>
+			<p>
+				<input type='submit' name='submit' value='Logga in'>
 			</p>
 		</form>
 		";
