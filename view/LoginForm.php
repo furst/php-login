@@ -4,16 +4,22 @@ namespace view;
 
 class LoginForm {
 
+	private $username = '';
+
 	public function getForm($message = '') {
+
+		if (isset($_POST['username'])) {
+			$this->username = $_POST['username'];
+		}
+
 		return
 		"
-		<div>
-			<p>$message</p>
-		</div>
+		<h2>Ej inloggad</h2>
+		<p>$message</p>
 		<form action='?login' method='post'>
 			<p>
 				<label for='username'>Username</label>
-				<input type='text' name='username' id='username'>
+				<input type='text' name='username' id='username' value='$this->username'>
 			</p>
 			<p>
 				<label for='password'>Password</label>
