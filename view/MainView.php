@@ -2,19 +2,11 @@
 
 namespace view;
 
-class PageView {
+class MainView {
 
-	public static $message;
+	public $title;
 
-	/**
-	 * @param  string $title
-	 * @param  string $body
-	 * @return string HTML
-	 */
-	public function getPage($title, $body) {
-
-		$message = self::$message;
-		$date = date('D, Y-m-D');
+	public function content($content) {
 
 		$month = $this->getMonth();
 		$day = $this->getDay();
@@ -22,27 +14,35 @@ class PageView {
 		$year = date('Y');
 		$time = date('G:i:s');
 
-		return
+		echo
 		"
 			<!DOCTYPE html>
 			<html>
 			<head>
-				<title>$title</title>
+				<title>$this->title</title>
 				<meta charset='utf-8'>
 				<link rel='stylesheet' href='style.css'>
 			</head>
 			<body>
 				<h1>Laborationskod af222ht</h1>
 				<hr>
-				$body
+				$content
 				<hr>
 				$day, den $dayOfMonth $month år $year. klockan är [$time].
 			</body>
 			</html>
 		";
+
+		return $this;
 	}
 
-	public function getMonth() {
+	public function title($title) {
+		$this->title = $title;
+
+		return $this;
+	}
+
+	private function getMonth() {
 		switch (date('m')) {
 			case '1':
 				return 'Januari';
@@ -71,10 +71,19 @@ class PageView {
 			case '9':
 				return 'September';
 				break;
+			case '10':
+				return 'Oktober';
+				break;
+			case '11':
+				return 'November';
+				break;
+			case '12':
+				return 'December';
+				break;
 		}
 	}
 
-	public function getDay() {
+	private function getDay() {
 		switch (date('D')) {
 			case 'Mon':
 				return 'Måndag';
@@ -100,11 +109,3 @@ class PageView {
 		}
 	}
 }
-
-
-
-
-
-
-
-

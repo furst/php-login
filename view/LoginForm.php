@@ -4,18 +4,48 @@ namespace view;
 
 class LoginForm {
 
-	private $username = '';
+	private $username;
+	private static $errorMessageHolder = 'view::LoginForm::ErrorMessage';
+	private static $infoMessageHolder = 'view::LoginForm::InfoMessage';
+	private static $usernameHolder = 'view::LoginForm::Username';
+	private static $message;
 
-	public function getForm($message = '') {
+	public function setErrorMessage() {
+		$_SESSION[self::$errorMessageHolder] = true;
+	}
 
-		if (isset($_POST['username'])) {
-			$this->username = $_POST['username'];
+	public function setInfoMessage() {
+		$_SESSION[self::$infoMessageHolder] = true;
+	}
+
+	public function checkMessage() {
+		if (empty($_POST['username'])) {
+			self::$message = "<p>Användarnamn saknas</p>";
+		} elseif (empty($_POST['password'])) {
+			self::$message = "<p>Lösenord saknas</p>";
+		} elseif (isset($_SESSION[self::$errorMessageHolder])) {
+			self::$message = "<p>Användarnamn eller lösenord är felaktigt</p>";
+			unset($_SESSION[self::$errorMessageHolder]);
 		}
+	}
+
+	public function getForm() {
+
+		if (isset($_POST[self::$usernameHolder])) {
+			$this->username = $_POST[self::$usernameHolder];
+		}
+
+		if (isset($_SESSION[self::$infoMessageHolder])) {
+			self::$message = "<p>Du är nu utloggad</p>";
+			unset($_SESSION[self::$infoMessageHolder]);
+		}
+
+		$message = self::$message;
 
 		return
 		"
 		<h2>Ej inloggad</h2>
-		<p>$message</p>
+		$message
 		<form action='?login' method='post'>
 			<p>
 				<label for='username'>Username</label>
