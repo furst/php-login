@@ -30,9 +30,9 @@ class AdminView {
 
 	public function getContent() {
 
-		$this->messageHandeler(self::$messageHolder, 'Du har loggat in');
-		$this->messageHandeler(self::$extraMessageHolder, 'Vi kommer nu ihåg dig');
-		$this->messageHandeler(self::$cookieMessageHolder, 'Du har loggat in med cookies');
+		$this->messageHandeler(self::$messageHolder, 'Inloggning lyckades');
+		$this->messageHandeler(self::$extraMessageHolder, 'Inloggning lyckades och vi kommer ihåg dig nästa gång');
+		$this->messageHandeler(self::$cookieMessageHolder, 'Inloggning lyckades via cookies');
 
 		return
 		"

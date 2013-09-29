@@ -17,14 +17,19 @@ class User {
 	private $adminView;
 	private $user;
 
-	public function __construct(\view\MainView $mainView, \view\LoginForm $loginForm, \view\AdminView $adminView, \model\User $user) {
+	public function __construct(\view\MainView $mainView, \view\LoginForm $loginForm,
+								\view\AdminView $adminView) {
 		$this->mainView = $mainView;
 		$this->loginForm = $loginForm;
 		$this->adminView = $adminView;
-		$this->user = $user;
+
+		$this->user = new \model\User();
 	}
 
-	public function loginAttempt($username, $password) {
+	public function loginAttempt() {
+
+		$username = $_POST['username'];
+		$password = $_POST['password'];
 
 		if ($username == $this->user->dbUsername && $password == $this->user->dbPassword) {
 
@@ -42,6 +47,41 @@ class User {
 		} else {
 			$this->loginForm->setErrorMessage();
 			$this->mainView->title('Ej inloggad')->content($this->loginForm->getForm());
+		}
+	}
+
+	public function logout() {
+		unset($_SESSION[self::$loginSessionUsername]);
+		setcookie(self::$loginSessionUsername, '', time()-3600);
+		setcookie(self::$loginSessionPassword, '', time()-3600);
+
+		$this->loginForm->setInfoMessage();
+
+		Redirect::to('/Plugg/PHP-kursen/labb1/');
+	}
+
+	public function isLoggedIn() {
+
+		$username = $this->getCookieValue(self::$loginSessionUsername);
+		$password = $this->getCookieValue(self::$loginSessionPassword);
+
+		if(isset($_SESSION[self::$loginSessionUsername])) {
+			$this->mainView->title('Inloggad')->content($this->adminView->getContent());
+			exit();
+		} elseif ($username == $this->user->dbUsername
+					&& $password == sha1($this->user->dbPassword)) {
+			$this->adminView->setCookieMessage();
+			$this->mainView->title('Inloggad')->content($this->adminView->getContent());
+			$_SESSION[self::$loginSessionUsername] = $_COOKIE[self::$loginSessionUsername];
+			exit();
+		}
+	}
+
+	public function getCookieValue($cookieHolder) {
+		if (isset($_COOKIE[$cookieHolder])) {
+			return $_COOKIE[$cookieHolder];
+		} else {
+			return '';
 		}
 	}
 }

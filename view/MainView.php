@@ -4,7 +4,7 @@ namespace view;
 
 class MainView {
 
-	public $title;
+	private $title;
 
 	public function content($content) {
 
