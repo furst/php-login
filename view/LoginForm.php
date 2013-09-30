@@ -7,7 +7,7 @@ class LoginForm {
 	private $username;
 	private static $errorMessageHolder = 'view::LoginForm::ErrorMessage';
 	private static $infoMessageHolder = 'view::LoginForm::InfoMessage';
-	private static $usernameHolder = 'view::LoginForm::Username';
+	private static $usernameHolder = 'username';
 	private static $message;
 
 	public function setErrorMessage() {
@@ -42,14 +42,16 @@ class LoginForm {
 
 		$message = self::$message;
 
+		$username = self::$usernameHolder;
+
 		return
 		"
 		<h2>Ej inloggad</h2>
 		$message
 		<form action='?login' method='post'>
 			<p>
-				<label for='username'>Username</label>
-				<input type='text' name='username' id='username' value='$this->username'>
+				<label for='$username'>Username</label>
+				<input type='text' name='$username' id='$username' value='$this->username'>
 			</p>
 			<p>
 				<label for='password'>Password</label>
