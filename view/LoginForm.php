@@ -36,7 +36,7 @@ class LoginForm {
 		}
 
 		if (isset($_SESSION[self::$infoMessageHolder])) {
-			self::$message = "<p>Du har nu loggat ut</p>";
+			self::$message = "<p>Du har nu loggat ut(fungerar ej med surftown?)</p>";
 			unset($_SESSION[self::$infoMessageHolder]);
 		}
 

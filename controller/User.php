@@ -57,7 +57,7 @@ class User {
 
 		$this->loginForm->setInfoMessage();
 
-		Redirect::to('/Plugg/PHP-kursen/labb1/');
+		Redirect::to('index.php');
 	}
 
 	public function isLoggedIn() {
