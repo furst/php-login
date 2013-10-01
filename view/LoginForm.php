@@ -7,6 +7,7 @@ class LoginForm {
 	private $username;
 	private static $errorMessageHolder = 'view::LoginForm::ErrorMessage';
 	private static $infoMessageHolder = 'view::LoginForm::InfoMessage';
+	private static $infoCookieHolder = 'view::LoginForm::CookieMessage';
 	private static $usernameHolder = 'username';
 	private static $message;
 
@@ -16,6 +17,10 @@ class LoginForm {
 
 	public function setInfoMessage() {
 		$_SESSION[self::$infoMessageHolder] = true;
+	}
+
+	public function setCookieMessage() {
+		$_SESSION[self::$infoCookieHolder] = true;
 	}
 
 	public function checkMessage() {
@@ -36,8 +41,13 @@ class LoginForm {
 		}
 
 		if (isset($_SESSION[self::$infoMessageHolder])) {
-			self::$message = "<p>Du har nu loggat ut(fungerar ej med surftown?)</p>";
+			self::$message = "<p>Du har nu loggat ut</p>";
 			unset($_SESSION[self::$infoMessageHolder]);
+		}
+
+		if (isset($_SESSION[self::$infoCookieHolder])) {
+			self::$message = "<p>Felaktig information i cookie</p>";
+			unset($_SESSION[self::$infoCookieHolder]);
 		}
 
 		$message = self::$message;

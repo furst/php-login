@@ -33,14 +33,19 @@ class User {
 
 		if ($username == $this->user->dbUsername && $password == $this->user->dbPassword) {
 
+			$_SESSION['HTTP_USER_AGENT'] = $_SERVER['HTTP_USER_AGENT'];
+			$_SESSION['REMOTE_ADDR'] = $_SERVER['REMOTE_ADDR'];
+
 			if (isset($_POST['stay'])) {
 				$this->adminView->setExtraMessage();
-				$_SESSION[self::$loginSessionUsername] = $username;
-				setcookie(self::$loginSessionUsername, $username, time()+60*60*24*365);
-				setcookie(self::$loginSessionPassword, sha1($password), time()+60*60*24*365);
+				$_SESSION['isLoggedIn'] = true;
+				setcookie(self::$loginSessionUsername, $username, time()+60);
+				setcookie(self::$loginSessionPassword, sha1($password), time()+60);
+				$this->user->write(time()+60);
 			} else {
 				$this->adminView->setMessage();
-				$_SESSION[self::$loginSessionUsername] = $username;
+				session_regenerate_id();
+				$_SESSION['isLoggedIn'] = true;
 			}
 
 			$this->mainView->title('Inloggad')->content($this->adminView->getContent());
@@ -50,30 +55,54 @@ class User {
 		}
 	}
 
-	public function logout() {
-		unset($_SESSION[self::$loginSessionUsername]);
+	public function logout($withMessage = true) {
+		unset($_SESSION['isLoggedIn']);
 		setcookie(self::$loginSessionUsername, '', time()-3600);
 		setcookie(self::$loginSessionPassword, '', time()-3600);
 
-		$this->loginForm->setInfoMessage();
+		if ($withMessage) {
+			$this->loginForm->setInfoMessage();
+		}
 
 		Redirect::to('index.php');
 	}
 
 	public function isLoggedIn() {
 
+		if (isset($_SESSION['HTTP_USER_AGENT'])) {
+			if ($_SESSION['HTTP_USER_AGENT'] != $_SERVER['HTTP_USER_AGENT']) {
+				return;
+			}
+		}
+
+		if (isset($_SESSION['REMOTE_ADDR'])) {
+			if ($_SESSION['REMOTE_ADDR'] != $_SERVER['REMOTE_ADDR']) {
+				return;
+			}
+		}
+
 		$username = $this->getCookieValue(self::$loginSessionUsername);
 		$password = $this->getCookieValue(self::$loginSessionPassword);
 
-		if(isset($_SESSION[self::$loginSessionUsername])) {
-			$this->mainView->title('Inloggad')->content($this->adminView->getContent());
-			exit();
-		} elseif ($username == $this->user->dbUsername
-					&& $password == sha1($this->user->dbPassword)) {
-			$this->adminView->setCookieMessage();
-			$this->mainView->title('Inloggad')->content($this->adminView->getContent());
-			$_SESSION[self::$loginSessionUsername] = $_COOKIE[self::$loginSessionUsername];
-			exit();
+		if(isset($_SESSION['isLoggedIn'])) {
+			if ($_SESSION['isLoggedIn']) {
+				$this->mainView->title('Inloggad')->content($this->adminView->getContent());
+				exit();
+			}
+		} elseif(isset($_COOKIE[self::$loginSessionUsername]) && isset($_COOKIE[self::$loginSessionPassword])) {
+			if($username == $this->user->dbUsername && $password == sha1($this->user->dbPassword)) {
+				if ($this->user->getCookieDate() < time()) {
+					$this->loginForm->setCookieMessage();
+					$this->logout(false);
+				}
+				$this->adminView->setCookieMessage();
+				$this->mainView->title('Inloggad')->content($this->adminView->getContent());
+				$_SESSION['isLoggedIn'] = true;
+				exit();
+			} else {
+				$this->loginForm->setCookieMessage();
+				$this->logout(false);
+			}
 		}
 	}
 
