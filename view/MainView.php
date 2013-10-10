@@ -4,8 +4,34 @@ namespace view;
 
 class MainView {
 
+	/**
+	 * @var string
+	 */
 	private $title;
 
+	/**
+	 * @param  string $cookieName place in cookie
+	 * @return string
+	 */
+	public function getCookie($cookieName) {
+		return $_COOKIE[$cookieName];
+	}
+
+	/**
+	 * @param  string  $cookieName place in cookie
+	 * @return boolean
+	 */
+	public function isCookieSet($cookieName) {
+		if (isset($_COOKIE[$cookieName])) {
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * Echoes the html page
+	 * @param  string $content part of html page
+	 */
 	public function content($content) {
 
 		$month = $this->getMonth();
@@ -32,16 +58,22 @@ class MainView {
 			</body>
 			</html>
 		";
-
-		return $this;
 	}
 
+	/**
+	 * Sets the title of the page
+	 * @param  string $title
+	 * @return itself for chaining
+	 */
 	public function title($title) {
 		$this->title = $title;
 
 		return $this;
 	}
 
+	/**
+	 * @return string
+	 */
 	private function getMonth() {
 		switch (date('m')) {
 			case '1':
@@ -83,6 +115,9 @@ class MainView {
 		}
 	}
 
+	/**
+	 * @return string
+	 */
 	private function getDay() {
 		switch (date('D')) {
 			case 'Mon':
