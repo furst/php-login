@@ -46,7 +46,7 @@ class User {
 	 * @return boolean
 	 */
 	public function auth($username, $password) {
-		if ($username == self::$dbUsername && $password == self::$dbPassword) {
+		if ($username == self::$dbUsername && $password == sha1(self::$dbPassword)) {
 			$_SESSION['HTTP_USER_AGENT'] = $_SERVER['HTTP_USER_AGENT'];
 			$_SESSION['REMOTE_ADDR'] = $_SERVER['REMOTE_ADDR'];
 			$_SESSION[self::$sessionLoginHolder] = true;
@@ -60,19 +60,17 @@ class User {
 	 */
 	public function logout() {
 		unset($_SESSION[self::$sessionLoginHolder]);
-		setcookie($this->loginSessionUsername, '', time()-3600);
-		setcookie($this->loginSessionPassword, '', time()-3600);
 	}
 
 	/**
 	 * @param string $username
 	 * @param string $password
 	 */
-	public function setLoginCookie($username, $password) {
-		setcookie($this->loginSessionUsername, $username, time()+60);
-		setcookie($this->loginSessionPassword, sha1($password), time()+60);
-		$this->write(time()+60);
-	}
+	// public function setLoginCookie($username, $password) {
+	// 	setcookie($this->loginSessionUsername, $username, time()+60);
+	// 	setcookie($this->loginSessionPassword, sha1($password), time()+60);
+	// 	$this->write(time()+60);
+	// }
 
 	/**
 	 * @return boolean

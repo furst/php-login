@@ -3,7 +3,6 @@
 namespace controller;
 
 require_once('view/MainView.php');
-require_once('view/AdminView.php');
 require_once('model/User.php');
 require_once('controller/Redirect.php');
 
@@ -15,14 +14,9 @@ class User {
 	private $mainView;
 
 	/**
-	 * @var \view\LoginForm
+	 * @var \view\loginView
 	 */
-	private $loginForm;
-
-	/**
-	 * @var \view\AdminView
-	 */
-	private $adminView;
+	private $loginView;
 
 	/**
 	 * @var \model\User
@@ -31,14 +25,11 @@ class User {
 
 	/**
 	 * @param \view\MainView  $mainView
-	 * @param \view\LoginForm $loginForm
-	 * @param \view\AdminView $adminView
+	 * @param \view\LoginView $loginView
 	 */
-	public function __construct(\view\MainView $mainView, \view\LoginForm $loginForm,
-								\view\AdminView $adminView) {
+	public function __construct(\view\MainView $mainView, \view\LoginView $loginView) {
 		$this->mainView = $mainView;
-		$this->loginForm = $loginForm;
-		$this->adminView = $adminView;
+		$this->loginView = $loginView;
 
 		$this->user = new \model\User();
 	}
@@ -48,22 +39,18 @@ class User {
 	 */
 	public function loginAttempt() {
 
-		$username = $this->loginForm->getUsername();
-		$password = $this->loginForm->getPassword();
+		$username = $this->loginView->getUsername();
+		$password = sha1($this->loginView->getPassword());
 
 		if ($this->user->auth($username, $password)) {
 
-			if ($this->loginForm->userWantsToStay()) {
-				$this->adminView->setExtraMessage();
-				$this->user->setLoginCookie($username, $password);
-			} else {
-				$this->adminView->setMessage();
-			}
+			$this->user->write(time()+60);
 
-			$this->mainView->title('Inloggad')->content($this->adminView->getContent());
+			$this->loginView->setLoginMessage($username, $password);
+
+			$this->mainView->content($this->loginView->getAdminContent());
 		} else {
-			$this->loginForm->setErrorMessage();
-			$this->mainView->title('Ej inloggad')->content($this->loginForm->getForm());
+			$this->mainView->content($this->loginView->getForm());
 		}
 	}
 
@@ -75,14 +62,34 @@ class User {
 
 		$this->user->logout();
 
-		if ($withMessage) {
-			$this->loginForm->setInfoMessage();
-		}
-
-		Redirect::to('index.php');
+		$this->loginView->logout();
 	}
 
+	/**
+	 * Check if user is logged in
+	 * @return boolean
+	 */
 	public function isLoggedIn() {
+
+		$cookieUsernameHolder = $this->user->loginSessionUsername;
+		$cookiePasswordHolder = $this->user->loginSessionPassword;
+
+		$username = $this->getCookieValue($cookieUsernameHolder);
+		$password = $this->getCookieValue($cookiePasswordHolder);
+
+		if($this->user->isLoggedIn()) {
+			return true;
+		} else if($this->mainView->isCookieSet($cookieUsernameHolder) && $this->mainView->isCookieSet($cookiePasswordHolder)) {
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * Check if user is logged in and do actions
+	 * @return boolean if session is hijacked
+	 */
+	public function loggedInUser() {
 
 		if ($this->user->isSessionHijacked()) {
 			return;
@@ -95,20 +102,23 @@ class User {
 		$password = $this->getCookieValue($cookiePasswordHolder);
 
 		if($this->user->isLoggedIn()) {
-			$this->mainView->title('Inloggad')->content($this->adminView->getContent());
+			$this->mainView->content($this->loginView->getAdminContent());
 			exit();
-		} elseif($this->mainView->isCookieSet($cookieUsernameHolder) && $this->mainView->isCookieSet($cookiePasswordHolder)) {
+		} else if($this->mainView->isCookieSet($cookieUsernameHolder) && $this->mainView->isCookieSet($cookiePasswordHolder)) {
 			if($this->user->authCookie($username, $password)) {
 				if ($this->user->getCookieDate() < time()) {
-					$this->loginForm->setCookieMessage();
 					$this->logout(false);
+					$this->loginView->errorMessage();
+				} else {
+					$this->user->write(time()+60);
+					$this->user->auth($username, $password);
+					$this->loginView->setLoginMessage($username, $password);
+					$this->mainView->content($this->loginView->getAdminContent());
+					exit();
 				}
-				$this->adminView->setCookieMessage();
-				$this->mainView->title('Inloggad')->content($this->adminView->getContent());
-				exit();
 			} else {
-				$this->loginForm->setCookieMessage();
 				$this->logout(false);
+				$this->loginView->errorMessage();
 			}
 		}
 	}

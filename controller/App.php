@@ -3,7 +3,7 @@
 namespace controller;
 
 require_once('view/MainView.php');
-require_once('view/LoginForm.php');
+require_once('view/LoginView.php');
 require_once('view/AdminView.php');
 require_once('controller/User.php');
 require_once('controller/Redirect.php');
@@ -16,22 +16,23 @@ class App {
 	public function run() {
 
 		$mainView = new \view\MainView();
-		$adminView = new \view\AdminView();
-		$loginForm = new \view\LoginForm();
-		$user = new \controller\User($mainView, $loginForm, $adminView);
+		$loginView = new \view\LoginView();
+		$user = new \controller\User($mainView, $loginView);
 
-		if ($adminView->userWantsToLogout()) {
-			$user->logout();
+		if ($loginView->userWantsToLogout()) {
+			if ($user->isLoggedIn()) {
+				$user->logout();
+			}
+		} else {
+			$user->loggedInUser();
 		}
 
-		$user->isLoggedIn();
-
-		if ($loginForm->submitLogin()) {
-			$loginForm->checkMessage();
+		if ($loginView->submitLogin()) {
+			$loginView->errorMessage();
 			$user->loginAttempt();
 			exit();
 		}
 
-		$mainView->title('Ej inloggad')->content($loginForm->getForm());
+		$mainView->content($loginView->getForm());
 	}
 }

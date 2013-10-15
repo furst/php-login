@@ -5,11 +5,6 @@ namespace view;
 class MainView {
 
 	/**
-	 * @var string
-	 */
-	private $title;
-
-	/**
 	 * @param  string $cookieName place in cookie
 	 * @return string
 	 */
@@ -45,7 +40,7 @@ class MainView {
 			<!DOCTYPE html>
 			<html>
 			<head>
-				<title>$this->title</title>
+				<title>Labb 3.1</title>
 				<meta charset='utf-8'>
 				<link rel='stylesheet' href='style.css'>
 			</head>
@@ -58,17 +53,6 @@ class MainView {
 			</body>
 			</html>
 		";
-	}
-
-	/**
-	 * Sets the title of the page
-	 * @param  string $title
-	 * @return itself for chaining
-	 */
-	public function title($title) {
-		$this->title = $title;
-
-		return $this;
 	}
 
 	/**
